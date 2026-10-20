@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Housing Affordability Charts - Interactive Maps</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+        h1 { color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .info { color: #666; font-size: 0.9em; margin-top: 5px; }
+        input { padding: 8px; font-size: 14px; width: 300px; }
+        .search-results { margin-top: 20px; }
+        .chart-link { display: block; padding: 8px; margin: 4px 0; background: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Housing Affordability Charts</h1>
+        <p>Interactive charts showing affordable homes vs. renter households by income tier.</p>
+
+        <div class="section">
+            <h2>Find a Chart</h2>
+            <input type="text" id="search" placeholder="Search by state or county name..." />
+            <div class="search-results" id="results"></div>
+        </div>
+
+        <div class="section">
+            <h2>Quick Links</h2>
+            <div class="chart-link"><a href="us.html">United States (All)</a></div>
+            <div class="chart-link"><a href="alabama.html">Alabama</a></div>
+            <div class="chart-link"><a href="california.html">California</a></div>
+            <div class="chart-link"><a href="new-york.html">New York</a></div>
+            <div class="chart-link"><a href="texas.html">Texas</a></div>
+        </div>
+
+        <div class="section">
+            <h2>About These Charts</h2>
+            <p>Data from HUD CHAS (Comprehensive Housing Affordability Strategy) 2018-2022.</p>
+            <p>Charts show affordable rental homes vs. renter households across three income tiers:</p>
+            <ul>
+                <li>Extremely Low Income (≤30% AMI)</li>
+                <li>Very Low Income (≤50% AMI)</li>
+                <li>Low Income (≤80% AMI)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const chartUrls = [];
+
+        fetch('chart_urls.csv')
+            .then(r => r.text())
+            .then(csv => {
+                const lines = csv.trim().split('\n').slice(1);
+                lines.forEach(line => {
+                    const [level, name, slug, filename] = line.split(',');
+                    chartUrls.push({ level, name, slug, filename });
+                });
+            });
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const resultsDiv = document.getElementById('results');
+
+            if (!query) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            const filtered = chartUrls.filter(item =>
+                item.name.toLowerCase().includes(query)
+            );
+
+            resultsDiv.innerHTML = filtered.map(item =>
+                `<div class="chart-link">
+                    <a href="${item.filename}">${item.name}</a>
+                    <span style="color: #999; font-size: 0.85em;">${item.level}</span>
+                </div>`
+            ).join('');
+        });
+    </script>
+</body>
+</html>
