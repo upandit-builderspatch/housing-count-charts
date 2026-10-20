@@ -5,469 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Berkshire County, Massachusetts</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-            background: transparent;
-            color: #1F2D3D;
-            padding: 0;
-            margin: 0;
-        }
-
-        .chart-container {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 24px;
-            background: transparent;
-        }
-
-        .chart-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: #1F2D3D;
-        }
-
-        .legend {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 8px;
-            font-size: 13px;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .legend-swatch {
-            width: 14px;
-            height: 14px;
-            flex-shrink: 0;
-        }
-
-        .legend-outline {
-            width: 14px;
-            height: 14px;
-            border: 2px solid #A9D4DA;
-            background: #EEF6F7;
-        }
-
-        .swatch-eli {
-            background: #8E1268;
-        }
-
-        .swatch-50ami {
-            background: #F785D8;
-        }
-
-        .swatch-80ami {
-            background: #F9C4E8;
-            border: 1px solid #EFA8D6;
-        }
-
-        .swatch-shortage {
-            background: repeating-linear-gradient(
-                45deg,
-                #C9D6D9,
-                #C9D6D9 2px,
-                #EEF6F7 2px,
-                #EEF6F7 6px
-            );
-        }
-
-        svg {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .row-label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #1F2D3D;
-        }
-
-        .row-label-sub {
-            font-size: 12px;
-            color: #6B7780;
-        }
-
-        .tooltip {
-            position: absolute;
-            background: #1F2D3D;
-            color: white;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 1000;
-            pointer-events: none;
-            white-space: nowrap;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .chart-caption {
-            font-size: 12px;
-            color: #6B7780;
-            margin-top: 16px;
-            text-align: center;
-        }
-
-        @media (max-width: 520px) {
-            .chart-container {
-                padding: 16px;
-            }
-
-            .legend {
-                gap: 12px;
-                font-size: 12px;
-            }
-
-            .chart-title {
-                font-size: 16px;
-                margin-bottom: 12px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; background: transparent; color: #1F2D3D; }
+        .container { padding: 20px; }
+        .legend { display: flex; gap: 24px; margin-top: 16px; font-size: 14px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend-swatch { width: 14px; height: 14px; flex-shrink: 0; }
+        .legend-outline { border: 2px solid #A9D4DA; background: #EEF6F7; }
+        .swatch-eli { background: #8E1268; }
+        .swatch-50ami { background: #F785D8; }
+        .swatch-80ami { background: #F9C4E8; border: 1px solid #EFA8D6; }
+        .swatch-shortage { background: repeating-linear-gradient(45deg, #C9D6D9, #C9D6D9 2px, #EEF6F7 2px, #EEF6F7 6px); }
+        svg { display: block; width: 100%; height: auto; }
+        .tooltip { position: absolute; background: #1F2D3D; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 1000; }
     </style>
 </head>
 <body>
-    <div class="chart-container" role="img" aria-label="Berkshire County, Massachusetts: Affordable homes vs renter households by income tier">
-        
-
-        <svg id="chart" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet">
-            <!-- Will be populated by JavaScript -->
-        </svg>
-
+    <div class="container">
+        <svg id="chart"></svg>
         <div class="legend">
-            <div class="legend-item">
-                <div class="legend-swatch legend-outline"></div>
-                <span>Renter households</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-swatch swatch-eli"></div>
-                <span>Homes affordable to ELI renters</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-swatch swatch-50ami"></div>
-                <span>+ affordable up to 50% AMI</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-swatch swatch-80ami"></div>
-                <span>+ affordable up to 80% AMI</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-swatch swatch-shortage"></div>
-                <span>Shortage</span>
-            </div>
+            <div class="legend-item"><div class="legend-swatch legend-outline"></div><span>Renter households</span></div>
+            <div class="legend-item"><div class="legend-swatch swatch-eli"></div><span>ELI</span></div>
+            <div class="legend-item"><div class="legend-swatch swatch-50ami"></div><span>+50% AMI</span></div>
+            <div class="legend-item"><div class="legend-swatch swatch-80ami"></div><span>+80% AMI</span></div>
+            <div class="legend-item"><div class="legend-swatch swatch-shortage"></div><span>Shortage</span></div>
         </div>
-
-        <!-- Accessibility table -->
-        <table style="display:none;">
-            <thead>
-                <tr>
-                    <th>Income Tier</th>
-                    <th>Homes</th>
-                    <th>Households</th>
-                    <th>Per 100</th>
-                    <th>Shortage/Surplus</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Extremely low-income (≤30% AMI)</td>
-                    <td>2,215</td>
-                    <td>4,800</td>
-                    <td>46</td>
-                    <td>Shortage: 2,585</td>
-                </tr>
-                <tr>
-                    <td>Up to 50% AMI</td>
-                    <td>5,850</td>
-                    <td>8,195</td>
-                    <td>71</td>
-                    <td>Shortage: 2,345</td>
-                </tr>
-                <tr>
-                    <td>Up to 80% AMI</td>
-                    <td>11.2K</td>
-                    <td>11.4K</td>
-                    <td>98</td>
-                    <td>Shortage: 200</td>
-                </tr>
-            </tbody>
-        </table>
-
         <div class="tooltip" id="tooltip"></div>
     </div>
 
     <script>
-        const chartData = {"eli": {"supply": 2215, "demand": 4800, "per_100": 46, "shortage": 2585, "surplus": 0, "grade": "Severe", "badge_color": "#C78AB5"}, "fifty": {"supply": 5850, "demand": 8195, "per_100": 71, "shortage": 2345, "surplus": 0, "grade": "Moderate", "badge_color": "#F8C4EB"}, "eighty": {"supply": 11215, "demand": 11415, "per_100": 98, "shortage": 200, "surplus": 0, "grade": "Balanced", "badge_color": "#FDE8F6"}, "global_max": 12556.500000000002};
+        const chartData = {"eli": {"supply": 2215, "demand": 4800, "per_100": 46, "shortage": 2585, "surplus": 0, "grade": "Severe", "badge_color": "#C78AB5"}, "fifty": {"supply": 5850, "demand": 8195, "per_100": 71, "shortage": 2345, "surplus": 0, "grade": "Moderate", "badge_color": "#F8C4EB"}, "eighty": {"supply": 11215, "demand": 11415, "per_100": 98, "shortage": 200, "surplus": 0, "grade": "Balanced", "badge_color": "#FDE8F6"}, "global_max": 13127.249999999998};
 
         const ROW_HEIGHT = 56;
         const ROW_GAP = 20;
         const MARGIN_LEFT = 200;
-        const MARGIN_RIGHT = 150;
-        const SEGMENT_GAP = 1;
+        const MARGIN_RIGHT = 50;
+        const MARGIN_TOP = 20;
         const SEGMENT_INSET = 6;
-
-        function renderChart() {
-            const svg = document.getElementById('chart');
-            const container = svg.parentElement;
-            const containerWidth = container.clientWidth;
-            const svgWidth = 1000;
-            const chartWidth = svgWidth - MARGIN_LEFT - MARGIN_RIGHT;
-
-            svg.innerHTML = '';
-            svg.setAttribute('viewBox', `0 0 1000 320`);
-
-            const tiers = [
-                { key: 'eli', label: 'Extremely low-income', sublabel: '(≤30% AMI)' },
-                { key: 'fifty', label: 'Up to 50% AMI', sublabel: '' },
-                { key: 'eighty', label: 'Up to 80% AMI', sublabel: '' }
-            ];
-
-            const tooltip = document.getElementById('tooltip');
-
-            tiers.forEach((tier, idx) => {
-                const data = chartData[tier.key];
-                const y = 30 + idx * (ROW_HEIGHT + ROW_GAP);
-
-                // Row label - centered vertically with the bar
-                const labelGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-                const labelText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                labelText.setAttribute('x', MARGIN_LEFT - 15);
-                labelText.setAttribute('y', y + ROW_HEIGHT / 2 - 8);
-                labelText.setAttribute('text-anchor', 'end');
-                labelText.setAttribute('font-size', '15');
-                labelText.setAttribute('font-weight', '500');
-                labelText.setAttribute('fill', '#1F2D3D');
-                labelText.textContent = tier.label;
-                labelGroup.appendChild(labelText);
-
-                if (tier.sublabel) {
-                    const subText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    subText.setAttribute('x', MARGIN_LEFT - 15);
-                    subText.setAttribute('y', y + ROW_HEIGHT / 2 + 8);
-                    subText.setAttribute('text-anchor', 'end');
-                    subText.setAttribute('font-size', '14');
-                    subText.setAttribute('fill', '#6B7780');
-                    subText.textContent = tier.sublabel;
-                    labelGroup.appendChild(subText);
-                }
-
-                svg.appendChild(labelGroup);
-
-                // Calculate all positions upfront
-                const boxX = MARGIN_LEFT;
-                const boxWidth = chartWidth * (data.demand / chartData.global_max);
-                const segY = y + SEGMENT_INSET;
-                const segHeight = ROW_HEIGHT - 2 * SEGMENT_INSET;
-
-                // Calculate segment widths
-                const eli_supply = parseFloat(chartData.eli.supply);
-                const fifty_supply = parseFloat(chartData.fifty.supply);
-                const eighty_supply = parseFloat(chartData.eighty.supply);
-
-                let seg1_width = 0, seg2_width = 0, seg3_width = 0;
-
-                if (tier.key === 'eli') {
-                    seg1_width = chartWidth * (data.supply / chartData.global_max);
-                } else if (tier.key === 'fifty') {
-                    seg1_width = chartWidth * (eli_supply / chartData.global_max);
-                    seg2_width = chartWidth * ((data.supply - eli_supply) / chartData.global_max);
-                } else if (tier.key === 'eighty') {
-                    seg1_width = chartWidth * (eli_supply / chartData.global_max);
-                    seg2_width = chartWidth * ((fifty_supply - eli_supply) / chartData.global_max);
-                    seg3_width = chartWidth * ((data.supply - fifty_supply) / chartData.global_max);
-                }
-
-                // Calculate segment positions
-                let segX = boxX + 6;
-                let fillEndX = segX;
-                const seg1X = segX;
-                if (seg1_width > 0) fillEndX = seg1X + seg1_width - 2;
-
-                const seg2X = seg1_width > 0 ? seg1X + seg1_width + SEGMENT_GAP : seg1X;
-                if (seg2_width > 0) fillEndX = seg2X + seg2_width - SEGMENT_GAP - 2;
-
-                const seg3X = seg2_width > 0 ? seg2X + seg2_width + SEGMENT_GAP : seg2X;
-                if (seg3_width > 0) fillEndX = seg3X + seg3_width - SEGMENT_GAP - 2;
-
-                // Draw outline box first
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', boxX);
-                rect.setAttribute('y', y);
-                rect.setAttribute('width', boxWidth);
-                rect.setAttribute('height', ROW_HEIGHT);
-                rect.setAttribute('fill', '#EEF6F7');
-                rect.setAttribute('stroke', '#A9D4DA');
-                rect.setAttribute('stroke-width', '2');
-                rect.style.cursor = 'pointer';
-                svg.appendChild(rect);
-
-                // Draw shortage hatching BEFORE segments so it appears behind
-                if (data.shortage > 0) {
-                    const shortageX = fillEndX + 2;
-                    const boxRightEdge = boxX + boxWidth;
-                    // Clip shortage hatching to stay within the box
-                    const shortageWidth = Math.min(
-                        chartWidth * (data.shortage / chartData.global_max),
-                        boxRightEdge - shortageX
-                    );
-
-                    if (shortageWidth > 0) {
-                        const hatching = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-                        const pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
-                        pattern.setAttribute('id', `hatch-${tier.key}`);
-                        pattern.setAttribute('patternUnits', 'userSpaceOnUse');
-                        pattern.setAttribute('width', '6');
-                        pattern.setAttribute('height', '6');
-
-                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                        line.setAttribute('x1', '0');
-                        line.setAttribute('y1', '0');
-                        line.setAttribute('x2', '6');
-                        line.setAttribute('y2', '6');
-                        line.setAttribute('stroke', '#C9D6D9');
-                        line.setAttribute('stroke-width', '1');
-                        pattern.appendChild(line);
-
-                        svg.appendChild(hatching);
-                        hatching.appendChild(pattern);
-
-                        const hatchRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                        hatchRect.setAttribute('x', shortageX);
-                        hatchRect.setAttribute('y', segY);
-                        hatchRect.setAttribute('width', shortageWidth);
-                        hatchRect.setAttribute('height', segHeight);
-                        hatchRect.setAttribute('fill', `url(#hatch-${tier.key})`);
-                        svg.appendChild(hatchRect);
-
-                        // Shortage label (only if there's enough space)
-                        if (shortageWidth >= 80) {
-                            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                            label.setAttribute('x', shortageX + shortageWidth / 2);
-                            label.setAttribute('y', y + ROW_HEIGHT / 2 + 5);
-                            label.setAttribute('text-anchor', 'middle');
-                            label.setAttribute('font-size', '12');
-                            label.setAttribute('fill', '#4A5A60');
-                            label.textContent = `Shortage: ${formatNumber(data.shortage)}`;
-                            svg.appendChild(label);
-                        }
-                    }
-                }
-
-                // Draw segments AFTER hatching so they appear on top
-                if (seg1_width > 0) {
-                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    seg.setAttribute('x', seg1X);
-                    seg.setAttribute('y', segY);
-                    seg.setAttribute('width', seg1_width - 2);
-                    seg.setAttribute('height', segHeight);
-                    seg.setAttribute('fill', '#8E1268');
-                    svg.appendChild(seg);
-                }
-
-                if (seg2_width > 0) {
-                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    seg.setAttribute('x', seg2X);
-                    seg.setAttribute('y', segY);
-                    seg.setAttribute('width', seg2_width - SEGMENT_GAP - 2);
-                    seg.setAttribute('height', segHeight);
-                    seg.setAttribute('fill', '#F785D8');
-                    svg.appendChild(seg);
-                }
-
-                if (seg3_width > 0) {
-                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    seg.setAttribute('x', seg3X);
-                    seg.setAttribute('y', segY);
-                    seg.setAttribute('width', seg3_width - SEGMENT_GAP - 2);
-                    seg.setAttribute('height', segHeight);
-                    seg.setAttribute('fill', '#F9C4E8');
-                    seg.setAttribute('stroke', '#EFA8D6');
-                    seg.setAttribute('stroke-width', '1');
-                    svg.appendChild(seg);
-                }
-
-                // Surplus (overflow)
-                if (data.surplus > 0) {
-                    const surplusX = boxX + boxWidth;
-                    const surplusWidth = chartWidth * (data.surplus / chartData.global_max);
-
-                    const surplus = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    surplus.setAttribute('x', surplusX);
-                    surplus.setAttribute('y', segY);
-                    surplus.setAttribute('width', surplusWidth);
-                    surplus.setAttribute('height', segHeight);
-                    surplus.setAttribute('fill', '#8FC9CF');
-                    svg.appendChild(surplus);
-
-                    // Surplus label
-                    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    label.setAttribute('x', surplusX + surplusWidth / 2);
-                    label.setAttribute('y', y + ROW_HEIGHT / 2 + 5);
-                    label.setAttribute('text-anchor', 'middle');
-                    label.setAttribute('font-size', '12');
-                    label.setAttribute('fill', '#1F2D3D');
-                    label.textContent = `Surplus: ${formatNumber(data.surplus)}`;
-                    svg.appendChild(label);
-                }
-
-                // Annotation (right side)
-                const annotX = MARGIN_LEFT + chartWidth + 15;
-
-                const perText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                perText.setAttribute('x', annotX);
-                perText.setAttribute('y', y + 18);
-                perText.setAttribute('font-size', '16');
-                perText.setAttribute('font-weight', '600');
-                perText.setAttribute('fill', '#1F2D3D');
-                perText.textContent = `${data.per_100} per 100`;
-                svg.appendChild(perText);
-
-                // Subtitle
-                const subAnnot = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                subAnnot.setAttribute('x', annotX);
-                subAnnot.setAttribute('y', y + 35);
-                subAnnot.setAttribute('font-size', '14');
-                subAnnot.setAttribute('fill', '#6B7780');
-                subAnnot.textContent = `${formatNumber(data.supply)} / ${formatNumber(data.demand)}`;
-                svg.appendChild(subAnnot);
-
-                // Interactive hover area
-                const hoverArea = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                hoverArea.setAttribute('x', boxX);
-                hoverArea.setAttribute('y', y - 5);
-                hoverArea.setAttribute('width', chartWidth + 200);
-                hoverArea.setAttribute('height', ROW_HEIGHT + 10);
-                hoverArea.setAttribute('fill', 'transparent');
-                hoverArea.style.cursor = 'pointer';
-
-                hoverArea.addEventListener('mouseenter', (e) => {
-                    tooltip.style.opacity = '1';
-                    tooltip.innerHTML = `${tier.label}: ${formatNumber(data.demand)} households, ${formatNumber(data.supply)} homes (${data.per_100} per 100). Shortage: ${formatNumber(data.shortage)}.`;
-                    tooltip.style.left = (e.pageX + 10) + 'px';
-                    tooltip.style.top = (e.pageY + 10) + 'px';
-                });
-
-                hoverArea.addEventListener('mouseleave', () => {
-                    tooltip.style.opacity = '0';
-                });
-
-                svg.appendChild(hoverArea);
-            });
-        }
+        const SEGMENT_GAP = 1;
 
         function formatNumber(n) {
             if (!n || n === 0) return '0';
@@ -480,8 +55,227 @@
             return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
         }
 
-        renderChart();
-        window.addEventListener('resize', renderChart);
+        function render() {
+            const svg = document.getElementById('chart');
+            const container = svg.parentElement;
+            const containerWidth = container.clientWidth;
+
+            // Use actual container width for pixel-based sizing
+            const chartWidth = containerWidth - MARGIN_LEFT - MARGIN_RIGHT;
+            const chartHeight = MARGIN_TOP + (ROW_HEIGHT + ROW_GAP) * 3;
+
+            svg.innerHTML = '';
+            svg.setAttribute('width', containerWidth);
+            svg.setAttribute('height', chartHeight);
+            svg.style.maxWidth = '100%';
+
+            const tiers = [
+                { key: 'eli', label: 'Extremely low-income', sublabel: '(≤30% AMI)' },
+                { key: 'fifty', label: 'Up to 50% AMI', sublabel: '' },
+                { key: 'eighty', label: 'Up to 80% AMI', sublabel: '' }
+            ];
+
+            const tooltip = document.getElementById('tooltip');
+
+            tiers.forEach((tier, idx) => {
+                const data = chartData[tier.key];
+                const y = MARGIN_TOP + idx * (ROW_HEIGHT + ROW_GAP);
+
+                // Calculate positions
+                const boxX = MARGIN_LEFT;
+                const boxWidth = chartWidth * (data.demand / chartData.global_max);
+                const boxRightEdge = boxX + boxWidth;
+                const segY = y + SEGMENT_INSET;
+                const segHeight = ROW_HEIGHT - 2 * SEGMENT_INSET;
+
+                const eli_supply = parseFloat(chartData.eli.supply);
+                const fifty_supply = parseFloat(chartData.fifty.supply);
+                const eighty_supply = parseFloat(chartData.eighty.supply);
+
+                let seg1_width = 0, seg2_width = 0, seg3_width = 0;
+                if (tier.key === 'eli') {
+                    seg1_width = chartWidth * (data.supply / chartData.global_max);
+                } else if (tier.key === 'fifty') {
+                    seg1_width = chartWidth * (eli_supply / chartData.global_max);
+                    seg2_width = chartWidth * ((data.supply - eli_supply) / chartData.global_max);
+                } else if (tier.key === 'eighty') {
+                    seg1_width = chartWidth * (eli_supply / chartData.global_max);
+                    seg2_width = chartWidth * ((fifty_supply - eli_supply) / chartData.global_max);
+                    seg3_width = chartWidth * ((data.supply - fifty_supply) / chartData.global_max);
+                }
+
+                // Outline box
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', boxX);
+                rect.setAttribute('y', y);
+                rect.setAttribute('width', boxWidth);
+                rect.setAttribute('height', ROW_HEIGHT);
+                rect.setAttribute('fill', '#EEF6F7');
+                rect.setAttribute('stroke', '#A9D4DA');
+                rect.setAttribute('stroke-width', '2');
+                svg.appendChild(rect);
+
+                // Shortage hatching
+                if (data.shortage > 0) {
+                    let fillEndX = boxX + chartWidth * (data.supply / chartData.global_max);
+                    const shortageWidth = Math.min(
+                        chartWidth * (data.shortage / chartData.global_max),
+                        boxRightEdge - fillEndX
+                    );
+                    if (shortageWidth > 0) {
+                        const hatching = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                        const pattern = document.createElementNS('http://www.w3.org/2000/svg', 'pattern');
+                        pattern.setAttribute('id', `h-${tier.key}`);
+                        pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+                        pattern.setAttribute('width', '6');
+                        pattern.setAttribute('height', '6');
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', '0');
+                        line.setAttribute('y1', '0');
+                        line.setAttribute('x2', '6');
+                        line.setAttribute('y2', '6');
+                        line.setAttribute('stroke', '#C9D6D9');
+                        line.setAttribute('stroke-width', '1');
+                        pattern.appendChild(line);
+                        svg.appendChild(hatching);
+                        hatching.appendChild(pattern);
+
+                        const hatchRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        hatchRect.setAttribute('x', fillEndX);
+                        hatchRect.setAttribute('y', segY);
+                        hatchRect.setAttribute('width', shortageWidth);
+                        hatchRect.setAttribute('height', segHeight);
+                        hatchRect.setAttribute('fill', `url(#h-${tier.key})`);
+                        svg.appendChild(hatchRect);
+                    }
+                }
+
+                // Segments
+                let segX = boxX + 6;
+                const colors = ['#8E1268', '#F785D8', '#F9C4E8'];
+                const widths = [seg1_width - 2, seg2_width - SEGMENT_GAP - 2, seg3_width - SEGMENT_GAP - 2];
+
+                if (seg1_width > 0) {
+                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    seg.setAttribute('x', segX);
+                    seg.setAttribute('y', segY);
+                    seg.setAttribute('width', widths[0]);
+                    seg.setAttribute('height', segHeight);
+                    seg.setAttribute('fill', colors[0]);
+                    svg.appendChild(seg);
+                    segX += seg1_width;
+                }
+
+                if (seg2_width > 0) {
+                    segX += SEGMENT_GAP;
+                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    seg.setAttribute('x', segX);
+                    seg.setAttribute('y', segY);
+                    seg.setAttribute('width', widths[1]);
+                    seg.setAttribute('height', segHeight);
+                    seg.setAttribute('fill', colors[1]);
+                    svg.appendChild(seg);
+                    segX += seg2_width;
+                }
+
+                if (seg3_width > 0) {
+                    segX += SEGMENT_GAP;
+                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    seg.setAttribute('x', segX);
+                    seg.setAttribute('y', segY);
+                    seg.setAttribute('width', widths[2]);
+                    seg.setAttribute('height', segHeight);
+                    seg.setAttribute('fill', colors[2]);
+                    seg.setAttribute('stroke', '#EFA8D6');
+                    seg.setAttribute('stroke-width', '1');
+                    svg.appendChild(seg);
+                }
+
+                // Surplus
+                if (data.surplus > 0) {
+                    const surplusX = boxRightEdge;
+                    const surplusWidth = chartWidth * (data.surplus / chartData.global_max);
+                    const surplus = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                    surplus.setAttribute('x', surplusX);
+                    surplus.setAttribute('y', segY);
+                    surplus.setAttribute('width', surplusWidth);
+                    surplus.setAttribute('height', segHeight);
+                    surplus.setAttribute('fill', '#8FC9CF');
+                    svg.appendChild(surplus);
+                }
+
+                // Left labels (right-aligned, centered with bar)
+                const labelX = MARGIN_LEFT - 20;
+                const labelY = y + ROW_HEIGHT / 2;
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', labelX);
+                label.setAttribute('y', labelY - 6);
+                label.setAttribute('text-anchor', 'end');
+                label.setAttribute('font-size', '15');
+                label.setAttribute('font-weight', '600');
+                label.setAttribute('fill', '#1F2D3D');
+                label.textContent = tier.label;
+                svg.appendChild(label);
+
+                if (tier.sublabel) {
+                    const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    sub.setAttribute('x', labelX);
+                    sub.setAttribute('y', labelY + 8);
+                    sub.setAttribute('text-anchor', 'end');
+                    sub.setAttribute('font-size', '13');
+                    sub.setAttribute('fill', '#6B7780');
+                    sub.textContent = tier.sublabel;
+                    svg.appendChild(sub);
+                }
+
+                // Right annotations (12px right of bar end, centered)
+                const annotX = boxRightEdge + 12;
+                const annotY = y + ROW_HEIGHT / 2;
+
+                const perText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                perText.setAttribute('x', annotX);
+                perText.setAttribute('y', annotY - 6);
+                perText.setAttribute('font-size', '16');
+                perText.setAttribute('font-weight', '700');
+                perText.setAttribute('fill', '#1F2D3D');
+                perText.textContent = `${data.per_100} per 100`;
+                svg.appendChild(perText);
+
+                const homesText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                homesText.setAttribute('x', annotX);
+                homesText.setAttribute('y', annotY + 10);
+                homesText.setAttribute('font-size', '13');
+                homesText.setAttribute('fill', '#6B7780');
+                homesText.textContent = `${formatNumber(data.supply)} homes / ${formatNumber(data.demand)} households`;
+                svg.appendChild(homesText);
+
+                // Hover area
+                const hover = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                hover.setAttribute('x', boxX - 10);
+                hover.setAttribute('y', y - 5);
+                hover.setAttribute('width', chartWidth + 100);
+                hover.setAttribute('height', ROW_HEIGHT + 10);
+                hover.setAttribute('fill', 'transparent');
+                hover.style.cursor = 'pointer';
+
+                hover.addEventListener('mouseenter', (e) => {
+                    tooltip.style.opacity = '1';
+                    tooltip.innerHTML = `${tier.label}: ${formatNumber(data.demand)} households, ${formatNumber(data.supply)} homes (${data.per_100} per 100)`;
+                    tooltip.style.left = (e.pageX + 10) + 'px';
+                    tooltip.style.top = (e.pageY + 10) + 'px';
+                });
+
+                hover.addEventListener('mouseleave', () => {
+                    tooltip.style.opacity = '0';
+                });
+
+                svg.appendChild(hover);
+            });
+        }
+
+        render();
+        window.addEventListener('resize', render);
     </script>
 </body>
 </html>
