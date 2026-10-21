@@ -8,14 +8,17 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; background: transparent; color: #1F2D3D; }
         .container { padding: 20px; }
-        .legend { display: flex; gap: 24px; margin-top: 16px; font-size: 14px; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: 8px; }
+        .legend { display: flex; gap: 24px; margin-top: 16px; font-size: 14px; flex-wrap: wrap; align-items: center; }
+        .legend-group { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .legend-group-label { font-size: 13px; font-weight: 600; color: #1F2D3D; margin-right: 4px; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; }
         .legend-swatch { width: 14px; height: 14px; flex-shrink: 0; }
         .legend-outline { border: 2px solid #A9D4DA; background: #EEF6F7; }
         .swatch-eli { background: #8E1268; }
         .swatch-50ami { background: #F785D8; }
         .swatch-80ami { background: #F9C4E8; border: 1px solid #EFA8D6; }
         .swatch-shortage { background: repeating-linear-gradient(45deg, #C9D6D9, #C9D6D9 2px, #EEF6F7 2px, #EEF6F7 6px); }
+        .swatch-surplus { background: #8FC9CF; }
         svg { display: block; width: 100%; height: auto; }
         .tooltip { position: absolute; background: #1F2D3D; color: white; padding: 8px 12px; border-radius: 4px; font-size: 12px; pointer-events: none; opacity: 0; transition: opacity 0.2s; z-index: 1000; }
     </style>
@@ -24,11 +27,17 @@
     <div class="container">
         <svg id="chart"></svg>
         <div class="legend">
-            <div class="legend-item"><div class="legend-swatch legend-outline"></div><span>Renter households</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-eli"></div><span>ELI</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-50ami"></div><span>+50% AMI</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-80ami"></div><span>+80% AMI</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-shortage"></div><span>Shortage</span></div>
+            <div class="legend-group">
+                <span class="legend-group-label">Affordable and available homes:</span>
+                <div class="legend-item"><div class="legend-swatch swatch-eli"></div><span>Available to ELI renters (≤30% AMI)</span></div>
+                <div class="legend-item"><div class="legend-swatch swatch-50ami"></div><span>Additional, up to 50% AMI</span></div>
+                <div class="legend-item"><div class="legend-swatch swatch-80ami"></div><span>Additional, up to 80% AMI</span></div>
+            </div>
+            <div class="legend-group">
+                <div class="legend-item"><div class="legend-swatch legend-outline"></div><span>Renter households</span></div>
+                
+                <div class="legend-item"><div class="legend-swatch swatch-surplus"></div><span>Surplus</span></div>
+            </div>
         </div>
         <div class="tooltip" id="tooltip"></div>
     </div>
@@ -102,6 +111,15 @@
                     seg1_width = chartWidth * (eli_supply / chartData.global_max);
                     seg2_width = chartWidth * ((fifty_supply - eli_supply) / chartData.global_max);
                     seg3_width = chartWidth * ((data.supply - fifty_supply) / chartData.global_max);
+                }
+
+                // Clip segment widths at household box edge
+                const totalSegWidth = seg1_width + seg2_width + seg3_width;
+                const clippedScale = totalSegWidth > boxWidth ? boxWidth / totalSegWidth : 1;
+                if (clippedScale < 1) {
+                    seg1_width *= clippedScale;
+                    seg2_width *= clippedScale;
+                    seg3_width *= clippedScale;
                 }
 
                 // Outline box
@@ -191,12 +209,13 @@
                     svg.appendChild(seg);
                 }
 
-                // Surplus
+                // Surplus (with 1px white gap from household box edge)
                 if (data.surplus > 0) {
-                    const surplusX = boxRightEdge;
+                    const surplusGap = 1;
+                    const surplusStartX = boxRightEdge + surplusGap;
                     const surplusWidth = chartWidth * (data.surplus / chartData.global_max);
                     const surplus = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    surplus.setAttribute('x', surplusX);
+                    surplus.setAttribute('x', surplusStartX);
                     surplus.setAttribute('y', segY);
                     surplus.setAttribute('width', surplusWidth);
                     surplus.setAttribute('height', segHeight);
@@ -250,6 +269,17 @@
                 homesText.textContent = `${formatNumber(data.supply)} homes / ${formatNumber(data.demand)} households`;
                 svg.appendChild(homesText);
 
+                // Surplus annotation
+                if (data.surplus > 0) {
+                    const surplusText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    surplusText.setAttribute('x', annotX);
+                    surplusText.setAttribute('y', annotY + 24);
+                    surplusText.setAttribute('font-size', '13');
+                    surplusText.setAttribute('fill', '#2F7F86');
+                    surplusText.textContent = `Surplus: ${formatNumber(data.surplus)} homes`;
+                    svg.appendChild(surplusText);
+                }
+
                 // Hover area
                 const hover = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 hover.setAttribute('x', boxX - 10);
@@ -260,8 +290,16 @@
                 hover.style.cursor = 'pointer';
 
                 hover.addEventListener('mouseenter', (e) => {
+                    let tooltipText = '';
+                    if (tier.key === 'eli') {
+                        tooltipText = `Homes available to ELI renters (≤30% AMI): ${formatNumber(data.supply)} / ${formatNumber(data.demand)} households (${data.per_100} per 100)`;
+                    } else if (tier.key === 'fifty') {
+                        tooltipText = `Additional homes available up to 50% AMI: ${formatNumber(data.supply - chartData.eli.supply)} / ${formatNumber(data.demand - chartData.eli.demand)} households (${data.per_100} per 100)`;
+                    } else if (tier.key === 'eighty') {
+                        tooltipText = `Additional homes available up to 80% AMI: ${formatNumber(data.supply - chartData.fifty.supply)} / ${formatNumber(data.demand - chartData.fifty.demand)} households (${data.per_100} per 100)`;
+                    }
                     tooltip.style.opacity = '1';
-                    tooltip.innerHTML = `${tier.label}: ${formatNumber(data.demand)} households, ${formatNumber(data.supply)} homes (${data.per_100} per 100)`;
+                    tooltip.innerHTML = tooltipText;
                     tooltip.style.left = (e.pageX + 10) + 'px';
                     tooltip.style.top = (e.pageY + 10) + 'px';
                 });
