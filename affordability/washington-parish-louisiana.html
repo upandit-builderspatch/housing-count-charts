@@ -101,26 +101,10 @@
                 const fifty_supply = parseFloat(chartData.fifty.supply);
                 const eighty_supply = parseFloat(chartData.eighty.supply);
 
-                let seg1_width = 0, seg2_width = 0, seg3_width = 0;
-                if (tier.key === 'eli') {
-                    seg1_width = chartWidth * (data.supply / chartData.global_max);
-                } else if (tier.key === 'fifty') {
-                    seg1_width = chartWidth * (eli_supply / chartData.global_max);
-                    seg2_width = chartWidth * ((data.supply - eli_supply) / chartData.global_max);
-                } else if (tier.key === 'eighty') {
-                    seg1_width = chartWidth * (eli_supply / chartData.global_max);
-                    seg2_width = chartWidth * ((fifty_supply - eli_supply) / chartData.global_max);
-                    seg3_width = chartWidth * ((data.supply - fifty_supply) / chartData.global_max);
-                }
-
-                // Clip segment widths at household box edge
-                const totalSegWidth = seg1_width + seg2_width + seg3_width;
-                const clippedScale = totalSegWidth > boxWidth ? boxWidth / totalSegWidth : 1;
-                if (clippedScale < 1) {
-                    seg1_width *= clippedScale;
-                    seg2_width *= clippedScale;
-                    seg3_width *= clippedScale;
-                }
+                // All segments use the same absolute x-scale (no per-row rescaling)
+                const seg1_width = chartWidth * (eli_supply / chartData.global_max);
+                const seg2_width = chartWidth * ((fifty_supply - eli_supply) / chartData.global_max);
+                const seg3_width = chartWidth * ((eighty_supply - fifty_supply) / chartData.global_max);
 
                 // Outline box
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -168,56 +152,54 @@
                     }
                 }
 
-                // Segments
+                // Draw segments with consistent x-scale across all rows, clipped at box edge
                 let segX = boxX + 6;
                 const colors = ['#8E1268', '#F785D8', '#F9C4E8'];
-                const widths = [seg1_width - 2, seg2_width - SEGMENT_GAP - 2, seg3_width - SEGMENT_GAP - 2];
+                const seg_widths = [seg1_width, seg2_width, seg3_width];
+                const draw_flags = [
+                    tier.key === 'eli' || tier.key === 'fifty' || tier.key === 'eighty',
+                    tier.key === 'fifty' || tier.key === 'eighty',
+                    tier.key === 'eighty'
+                ];
 
-                if (seg1_width > 0) {
-                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    seg.setAttribute('x', segX);
-                    seg.setAttribute('y', segY);
-                    seg.setAttribute('width', widths[0]);
-                    seg.setAttribute('height', segHeight);
-                    seg.setAttribute('fill', colors[0]);
-                    svg.appendChild(seg);
-                    segX += seg1_width;
+                for (let i = 0; i < 3; i++) {
+                    if (!draw_flags[i] || seg_widths[i] <= 0) {
+                        segX += seg_widths[i] + SEGMENT_GAP;
+                        continue;
+                    }
+
+                    // Clip segment at box edge
+                    const seg_clip_width = Math.max(0, Math.min(seg_widths[i], boxX + boxWidth - segX));
+
+                    if (seg_clip_width > 0.5) {
+                        const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        seg.setAttribute('x', segX);
+                        seg.setAttribute('y', segY);
+                        const draw_width = seg_clip_width - (i === 0 ? 2 : SEGMENT_GAP + 2);
+                        seg.setAttribute('width', Math.max(0, draw_width));
+                        seg.setAttribute('height', segHeight);
+                        seg.setAttribute('fill', colors[i]);
+                        if (i === 2) {
+                            seg.setAttribute('stroke', '#EFA8D6');
+                            seg.setAttribute('stroke-width', '1');
+                        }
+                        svg.appendChild(seg);
+                    }
+                    segX += seg_widths[i] + SEGMENT_GAP;
                 }
 
-                if (seg2_width > 0) {
-                    segX += SEGMENT_GAP;
-                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    seg.setAttribute('x', segX);
-                    seg.setAttribute('y', segY);
-                    seg.setAttribute('width', widths[1]);
-                    seg.setAttribute('height', segHeight);
-                    seg.setAttribute('fill', colors[1]);
-                    svg.appendChild(seg);
-                    segX += seg2_width;
-                }
-
-                if (seg3_width > 0) {
-                    segX += SEGMENT_GAP;
-                    const seg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                    seg.setAttribute('x', segX);
-                    seg.setAttribute('y', segY);
-                    seg.setAttribute('width', widths[2]);
-                    seg.setAttribute('height', segHeight);
-                    seg.setAttribute('fill', colors[2]);
-                    seg.setAttribute('stroke', '#EFA8D6');
-                    seg.setAttribute('stroke-width', '1');
-                    svg.appendChild(seg);
-                }
+                // Calculate supply extent in pixels
+                const supply_total = chartWidth * (data.supply / chartData.global_max);
+                const supply_x = boxX + supply_total;
 
                 // Surplus (with 1px white gap from household box edge)
                 if (data.surplus > 0) {
                     const surplusGap = 1;
                     const surplusStartX = boxRightEdge + surplusGap;
-                    const surplusWidth = chartWidth * (data.surplus / chartData.global_max);
                     const surplus = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                     surplus.setAttribute('x', surplusStartX);
                     surplus.setAttribute('y', segY);
-                    surplus.setAttribute('width', surplusWidth);
+                    surplus.setAttribute('width', supply_x - surplusStartX);
                     surplus.setAttribute('height', segHeight);
                     surplus.setAttribute('fill', '#8FC9CF');
                     svg.appendChild(surplus);
@@ -248,8 +230,9 @@
                     svg.appendChild(sub);
                 }
 
-                // Right annotations (12px right of bar end, centered)
-                const annotX = boxRightEdge + 12;
+                // Right annotations positioned 12px after rightmost edge (supply or demand, whichever is larger)
+                const row_end = Math.max(boxRightEdge, supply_x);
+                const annotX = row_end + 12;
                 const annotY = y + ROW_HEIGHT / 2;
 
                 const perText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
