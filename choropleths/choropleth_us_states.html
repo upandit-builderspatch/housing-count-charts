@@ -113,37 +113,6 @@
         .hover-button:hover {
             background: #6D0D51;
         }
-        .zoom-controls {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 999;
-        }
-        .zoom-btn {
-            width: 32px;
-            height: 32px;
-            background: white;
-            border: 1px solid #E5ECF6;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: #4A5560;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-        .zoom-btn:hover {
-            background: #F5F5F5;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-        }
-        .zoom-btn:active {
-            background: #EBEBEB;
-        }
     </style>
 </head>
 <body>
@@ -158,12 +127,7 @@
             </div>
         </div>
     </div>
-    <div id="map-wrapper">
-        <div class="zoom-controls">
-            <button class="zoom-btn" id="zoomInBtn" title="Zoom in">+</button>
-            <button class="zoom-btn" id="zoomOutBtn" title="Zoom out">−</button>
-        </div>
-    </div>
+    <div id="map-wrapper"></div>
     <div class="hover-card" id="hoverCard">
         <div class="hover-state-name" id="hoverStateName"></div>
         <div class="hover-metric">
@@ -280,26 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const config = {
         responsive: true,
-        displayModeBar: false,
-        scrollZoom: false
+        displayModeBar: true,
+        displaylogo: false,
+        scrollZoom: false,
+        modeBarButtonsToRemove: ["select2d", "lasso2d", "autoScale2d", "resetScale2d", "toggleSpikelines", "toggleHover", "pan2d", "box2d", "lasso", "zoom2d", "resetViews"]
     };
 
     Plotly.newPlot(plotDiv, data, layout, config);
-
-    // Zoom controls
-    let currentScale = 1000;
-    const zoomInBtn = document.getElementById('zoomInBtn');
-    const zoomOutBtn = document.getElementById('zoomOutBtn');
-
-    zoomInBtn.addEventListener('click', () => {
-        currentScale *= 1.3;
-        Plotly.relayout(plotDiv, {'geo.projection.scale': currentScale});
-    });
-
-    zoomOutBtn.addEventListener('click', () => {
-        currentScale /= 1.3;
-        Plotly.relayout(plotDiv, {'geo.projection.scale': currentScale});
-    });
 
     // ResizeObserver for proper resizing
     new ResizeObserver(() => {
