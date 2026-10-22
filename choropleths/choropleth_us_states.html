@@ -216,11 +216,27 @@ function showHoverCard(stateAbbrev, clientX, clientY) {
     document.getElementById('hoverButton').href = data.page_url;
 
     const card = document.getElementById('hoverCard');
-    let x = clientX + 16;
-    let y = clientY + 16;
+    const cardWidth = 200;
+    const cardHeight = 260;
+    const offset = 16;
+    const zoomControlsWidth = 60; // account for zoom controls on right
 
-    if (x + 200 > window.innerWidth) x = clientX - 216;
-    if (y + 250 > window.innerHeight) y = clientY - 250;
+    let x = clientX + offset;
+    let y = clientY + offset;
+
+    // Prefer right placement, but switch to left if not enough space
+    if (x + cardWidth + zoomControlsWidth > window.innerWidth) {
+        x = clientX - cardWidth - offset;
+    }
+
+    // Ensure card doesn't go off left edge
+    if (x < 0) x = offset;
+
+    // Handle vertical positioning
+    if (y + cardHeight > window.innerHeight) {
+        y = clientY - cardHeight - offset;
+    }
+    if (y < 0) y = offset;
 
     card.style.left = x + 'px';
     card.style.top = y + 'px';
