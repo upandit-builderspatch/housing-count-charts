@@ -322,19 +322,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Hover events
+    // Hover events with delay
+    let hideTimeout;
+    const hoverCard = document.getElementById('hoverCard');
+
     setTimeout(() => {
         plotDiv.on('plotly_hover', (data) => {
             if (data.points && data.points[0]) {
+                clearTimeout(hideTimeout);
                 const stateName = data.points[0].customdata;
                 showHoverCard(stateName, data.event.clientX, data.event.clientY);
             }
         });
 
         plotDiv.on('plotly_unhover', () => {
-            hideHoverCard();
+            hideTimeout = setTimeout(() => {
+                hideHoverCard();
+            }, 400);
         });
     }, 100);
+
+    // Allow hovering over the card without it disappearing
+    hoverCard.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+    });
+
+    hoverCard.addEventListener('mouseleave', () => {
+        hideHoverCard();
+    });
 });
     </script>
 </body>
