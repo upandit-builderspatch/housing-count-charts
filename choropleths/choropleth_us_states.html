@@ -280,10 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const config = {
         responsive: true,
-        displayModeBar: true,
-        displaylogo: false,
-        scrollZoom: false,
-        modeBarButtons: [["zoomInGeo", "zoomOutGeo", "resetGeo"]]
+        displayModeBar: false,
+        scrollZoom: false
     };
 
     Plotly.newPlot(plotDiv, data, layout, config);
