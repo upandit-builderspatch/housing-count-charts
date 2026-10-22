@@ -55,8 +55,8 @@
             background: white;
             border-radius: 12px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-            padding: 24px;
-            width: 260px;
+            padding: 16px;
+            width: 200px;
             pointer-events: none;
             z-index: 1000;
             opacity: 0;
@@ -68,50 +68,81 @@
             pointer-events: auto;
         }
         .hover-state-name {
-            font-size: 28px;
+            font-size: 18px;
             font-weight: 700;
             color: #1F2D3D;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             text-align: center;
         }
         .hover-metric {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         .hover-metric:last-of-type {
             margin-bottom: 0;
         }
         .hover-metric-number {
-            font-size: 44px;
+            font-size: 28px;
             font-weight: 700;
             color: #8E1268;
             line-height: 1;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
         .hover-metric-label {
-            font-size: 13px;
+            font-size: 11px;
             color: #4A5560;
-            line-height: 1.4;
+            line-height: 1.3;
         }
         .hover-button {
             display: block;
             width: 100%;
-            padding: 10px 12px;
+            padding: 8px 10px;
             background: #8E1268;
             color: white;
             text-decoration: none;
             text-align: center;
             border-radius: 6px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             border: none;
             cursor: pointer;
-            margin-top: 16px;
+            margin-top: 10px;
             box-sizing: border-box;
             transition: background 0.2s;
         }
         .hover-button:hover {
             background: #6D0D51;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 999;
+        }
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 1px solid #E5ECF6;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #4A5560;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+        .zoom-btn:hover {
+            background: #F5F5F5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+        .zoom-btn:active {
+            background: #EBEBEB;
         }
     </style>
 </head>
@@ -127,7 +158,12 @@
             </div>
         </div>
     </div>
-    <div id="map-wrapper"></div>
+    <div id="map-wrapper">
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomInBtn" title="Zoom in">+</button>
+            <button class="zoom-btn" id="zoomOutBtn" title="Zoom out">−</button>
+        </div>
+    </div>
     <div class="hover-card" id="hoverCard">
         <div class="hover-state-name" id="hoverStateName"></div>
         <div class="hover-metric">
@@ -183,8 +219,8 @@ function showHoverCard(stateAbbrev, clientX, clientY) {
     let x = clientX + 16;
     let y = clientY + 16;
 
-    if (x + 260 > window.innerWidth) x = clientX - 276;
-    if (y + 300 > window.innerHeight) y = clientY - 300;
+    if (x + 200 > window.innerWidth) x = clientX - 216;
+    if (y + 250 > window.innerHeight) y = clientY - 250;
 
     card.style.left = x + 'px';
     card.style.top = y + 'px';
@@ -235,6 +271,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     Plotly.newPlot(plotDiv, data, layout, config);
+
+    // Zoom controls
+    let currentScale = 1000;
+    const zoomInBtn = document.getElementById('zoomInBtn');
+    const zoomOutBtn = document.getElementById('zoomOutBtn');
+
+    zoomInBtn.addEventListener('click', () => {
+        currentScale *= 1.3;
+        Plotly.relayout(plotDiv, {'geo.projection.scale': currentScale});
+    });
+
+    zoomOutBtn.addEventListener('click', () => {
+        currentScale /= 1.3;
+        Plotly.relayout(plotDiv, {'geo.projection.scale': currentScale});
+    });
 
     // ResizeObserver for proper resizing
     new ResizeObserver(() => {
