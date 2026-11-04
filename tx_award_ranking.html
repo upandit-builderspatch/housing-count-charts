@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Texas HTC Awards Ranking</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: white;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: white;
+        }
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            padding: 0;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+        }
+        .btn:hover {
+            border-color: #8e1166;
+            color: #8e1166;
+            background: #fafafa;
+        }
+        .btn.active {
+            background: #8e1166;
+            color: white;
+            border-color: #8e1166;
+        }
+        #chartContainer {
+            width: 100%;
+            height: 800px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <button class="btn active" data-sort="units">Sort by Units</button>
+            <button class="btn" data-sort="awards">Sort by Award Count</button>
+            <button class="btn" data-sort="per_1000">Sort by Units per 1,000 LI Renters</button>
+        </div>
+        
+        <div id="chartContainer"></div>
+    </div>
+
+    <script>
+        const originalData = [{"name": "Uvalde County", "slug": "uvalde-county-texas", "region": "11", "units": 23, "awards": 1, "full_apps": 1, "demand": 1010, "per_1000": 22.77}, {"name": "Chambers County", "slug": "chambers-county-texas", "region": "06", "units": 32, "awards": 1, "full_apps": 1, "demand": 515, "per_1000": 62.14}, {"name": "Hardin County", "slug": "hardin-county-texas", "region": "05", "units": 36, "awards": 1, "full_apps": 1, "demand": 1410, "per_1000": 25.53}, {"name": "Howard County", "slug": "howard-county-texas", "region": "12", "units": 39, "awards": 1, "full_apps": 1, "demand": 1335, "per_1000": 29.21}, {"name": "Kerr County", "slug": "kerr-county-texas", "region": "09", "units": 40, "awards": 1, "full_apps": 2, "demand": 1860, "per_1000": 21.51}, {"name": "Hockley County", "slug": "hockley-county-texas", "region": "01", "units": 44, "awards": 1, "full_apps": 1, "demand": 935, "per_1000": 47.06}, {"name": "Coryell County", "slug": "coryell-county-texas", "region": "08", "units": 45, "awards": 1, "full_apps": 1, "demand": 2815, "per_1000": 15.99}, {"name": "Galveston County", "slug": "galveston-county-texas", "region": "06", "units": 48, "awards": 1, "full_apps": 1, "demand": 16760, "per_1000": 2.86}, {"name": "Denton County", "slug": "denton-county-texas", "region": "03", "units": 48, "awards": 1, "full_apps": 2, "demand": 33985, "per_1000": 1.41}, {"name": "Smith County", "slug": "smith-county-texas", "region": "04", "units": 50, "awards": 1, "full_apps": 1, "demand": 8985, "per_1000": 5.56}, {"name": "McLennan County", "slug": "mclennan-county-texas", "region": "08", "units": 65, "awards": 1, "full_apps": 2, "demand": 15530, "per_1000": 4.19}, {"name": "Polk County", "slug": "polk-county-texas", "region": "05", "units": 66, "awards": 1, "full_apps": 1, "demand": 1525, "per_1000": 43.28}, {"name": "Webb County", "slug": "webb-county-texas", "region": "11", "units": 72, "awards": 1, "full_apps": 1, "demand": 12290, "per_1000": 5.86}, {"name": "Gregg County", "slug": "gregg-county-texas", "region": "04", "units": 75, "awards": 1, "full_apps": 2, "demand": 6565, "per_1000": 11.42}, {"name": "Tom Green County", "slug": "tom-green-county-texas", "region": "12", "units": 80, "awards": 1, "full_apps": 1, "demand": 4490, "per_1000": 17.82}, {"name": "Ellis County", "slug": "ellis-county-texas", "region": "03", "units": 84, "awards": 1, "full_apps": 1, "demand": 6015, "per_1000": 13.97}, {"name": "Potter County", "slug": "potter-county-texas", "region": "01", "units": 87, "awards": 1, "full_apps": 2, "demand": 8610, "per_1000": 10.1}, {"name": "Wichita County", "slug": "wichita-county-texas", "region": "02", "units": 90, "awards": 2, "full_apps": 3, "demand": 7680, "per_1000": 11.72}, {"name": "Gray County", "slug": "gray-county-texas", "region": "01", "units": 96, "awards": 1, "full_apps": 1, "demand": 945, "per_1000": 101.59}, {"name": "Nueces County", "slug": "nueces-county-texas", "region": "10", "units": 105, "awards": 2, "full_apps": 5, "demand": 18230, "per_1000": 5.76}, {"name": "Montgomery County", "slug": "montgomery-county-texas", "region": "06", "units": 118, "awards": 2, "full_apps": 2, "demand": 17780, "per_1000": 6.64}, {"name": "Liberty County", "slug": "liberty-county-texas", "region": "06", "units": 136, "awards": 3, "full_apps": 5, "demand": 2735, "per_1000": 49.73}, {"name": "El Paso County", "slug": "el-paso-county-texas", "region": "13", "units": 163, "awards": 3, "full_apps": 6, "demand": 45410, "per_1000": 3.59}, {"name": "Cooke County", "slug": "cooke-county-texas", "region": "03", "units": 163, "awards": 2, "full_apps": 2, "demand": 1960, "per_1000": 83.16}, {"name": "Cameron County", "slug": "cameron-county-texas", "region": "11", "units": 180, "awards": 3, "full_apps": 3, "demand": 23145, "per_1000": 7.78}, {"name": "Travis County", "slug": "travis-county-texas", "region": "07", "units": 239, "awards": 4, "full_apps": 5, "demand": 86305, "per_1000": 2.77}, {"name": "Tarrant County", "slug": "tarrant-county-texas", "region": "03", "units": 271, "awards": 4, "full_apps": 8, "demand": 106435, "per_1000": 2.55}, {"name": "Dallas County", "slug": "dallas-county-texas", "region": "03", "units": 274, "awards": 4, "full_apps": 6, "demand": 176680, "per_1000": 1.55}, {"name": "Hidalgo County", "slug": "hidalgo-county-texas", "region": "11", "units": 303, "awards": 5, "full_apps": 7, "demand": 40990, "per_1000": 7.39}, {"name": "Bexar County", "slug": "bexar-county-texas", "region": "09", "units": 580, "awards": 7, "full_apps": 9, "demand": 112560, "per_1000": 5.15}, {"name": "Harris County", "slug": "harris-county-texas", "region": "06", "units": 759, "awards": 10, "full_apps": 14, "demand": 290790, "per_1000": 2.61}];
+        let currentSort = 'units';
+        
+        function sortData(sortBy) {
+            currentSort = sortBy;
+            const sorted = [...originalData].sort((a, b) => {
+                return b[sortBy] - a[sortBy];
+            });
+            sorted.reverse();
+            updateChart(sorted);
+            
+            // Update active button
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function updateChart(sorted) {
+            const names = sorted.map(d => d.name);
+            const units = sorted.map(d => d.units);
+            const awards = sorted.map(d => d.awards);
+            const per1000 = sorted.map(d => d.per_1000);
+            
+            // Create custom text with metrics (removed Units per 1,000 LI renters line)
+            const customText = sorted.map(d => 
+                `<b>${d.name}</b><br>` +
+                `Region: ${d.region}<br>` +
+                `Units: ${d.units.toLocaleString()}<br>` +
+                `Awards: ${d.awards}<br>` +
+                `Full apps: ${d.full_apps}`
+            );
+            
+            // Determine bar color and value to show based on sort
+            let barValues = units;
+            let barColor = 'rgba(142, 17, 102, 0.8)';
+            let title = 'Awarded Low-Income Units';
+            
+            if (currentSort === 'awards') {
+                barValues = awards;
+                title = 'Number of Awarded Applications';
+            } else if (currentSort === 'per_1000') {
+                barValues = per1000;
+                title = 'Units per 1,000 LI Renters';
+            }
+            
+            const trace = {
+                type: 'bar',
+                y: names,
+                x: barValues,
+                orientation: 'h',
+                marker: {
+                    color: barColor,
+                    line: {
+                        color: 'rgba(142, 17, 102, 1)',
+                        width: 0.5
+                    }
+                },
+                text: customText,
+                hovertemplate: '%{text}<extra></extra>',
+                customdata: sorted.map(d => d.slug),
+                showlegend: false
+            };
+            
+            const layout = {
+                title: {
+                    text: title,
+                    x: 0.5,
+                    xanchor: 'center',
+                    font: { size: 14 }
+                },
+                xaxis: {
+                    title: {
+                        text: currentSort === 'units' ? 'Units' : (currentSort === 'awards' ? 'Awards' : 'Units per 1,000')
+                    },
+                    zeroline: false,
+                    gridcolor: '#e0e0e0'
+                },
+                yaxis: {
+                    automargin: true,
+                    zeroline: false
+                },
+                margin: { l: 200, r: 40, t: 50, b: 40 },
+                hovermode: 'closest',
+                paper_bgcolor: 'white',
+                plot_bgcolor: '#fafafa'
+            };
+            
+            Plotly.newPlot('chartContainer', [trace], layout, {responsive: true});
+            
+            // Add click handler
+            document.getElementById('chartContainer').on('plotly_click', function(data) {
+                const pointIndex = data.points[0].pointNumber;
+                const slug = sorted[pointIndex].slug;
+                const url = '/housingcount/counties/' + slug;
+                window.parent.location.href = url;
+            });
+        }
+        
+        // Initialize with units sort
+        updateChart(originalData);
+        
+        // Add event listeners to buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                sortData(this.dataset.sort);
+            });
+        });
+    </script>
+</body>
+</html>
