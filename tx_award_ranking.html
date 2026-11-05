@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Texas HTC Awards Ranking</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,7 +13,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             background: white;
             color: #333;
         }
@@ -28,6 +29,7 @@
             margin-bottom: 12px;
             flex-wrap: wrap;
             padding: 0;
+            justify-content: center;
         }
         .btn {
             padding: 8px 16px;
@@ -36,6 +38,7 @@
             border-radius: 6px;
             font-size: 13px;
             font-weight: 500;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             cursor: pointer;
             transition: all 0.2s;
             color: #333;
@@ -93,7 +96,7 @@
             const awards = sorted.map(d => d.awards);
             const per1000 = sorted.map(d => d.per_1000);
             
-            // Create custom text with metrics (removed Units per 1,000 LI renters line)
+            // Create custom text with metrics
             const customText = sorted.map(d => 
                 `<b>${d.name}</b><br>` +
                 `Region: ${d.region}<br>` +
@@ -157,13 +160,24 @@
                 plot_bgcolor: '#fafafa'
             };
             
-            Plotly.newPlot('chartContainer', [trace], layout, {responsive: true});
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false,
+                modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+                toImageButtonOptions: {
+                    format: 'png',
+                    filename: 'tx_award_ranking'
+                }
+            };
+            
+            Plotly.newPlot('chartContainer', [trace], layout, config);
             
             // Add click handler
             document.getElementById('chartContainer').on('plotly_click', function(data) {
                 const pointIndex = data.points[0].pointNumber;
                 const slug = sorted[pointIndex].slug;
-                const url = '/housingcount/counties/' + slug;
+                const url = 'https://www.builderspatch.com/housingcount/counties/' + slug;
                 window.parent.location.href = url;
             });
         }

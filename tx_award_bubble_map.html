@@ -103,15 +103,27 @@
             plot_bgcolor: 'white'
         };
         
+        // Config with modebar visible and zoom controls
+        const config = {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['lasso2d', 'select2d'],
+            toImageButtonOptions: {
+                format: 'png',
+                filename: 'tx_award_bubble_map'
+            }
+        };
+        
         // Create the plot
-        Plotly.newPlot('mapContainer', [choroTrace, bubbleTrace], layout, {responsive: true});
+        Plotly.newPlot('mapContainer', [choroTrace, bubbleTrace], layout, config);
         
         // Add click handler
         document.getElementById('mapContainer').on('plotly_click', function(data) {
             const pointIndex = data.points[0].pointNumber;
             if (pointIndex !== undefined && awarded.slugs[pointIndex]) {
                 const slug = awarded.slugs[pointIndex];
-                const url = '/housingcount/counties/' + slug;
+                const url = 'https://www.builderspatch.com/housingcount/counties/' + slug;
                 window.parent.location.href = url;
             }
         });
